@@ -43,6 +43,9 @@ class Settings:
     courier_api_url: str | None = field(default_factory=lambda: os.getenv("COURIER_API_URL") or None)
     courier_api_key: str | None = field(default_factory=lambda: os.getenv("COURIER_API_KEY") or None)
 
+    # Vercel cron sends "Authorization: Bearer $CRON_SECRET". Unset = reseed endpoint disabled.
+    cron_secret: str | None = field(default_factory=lambda: os.getenv("CRON_SECRET") or None)
+
     default_shop: str = field(default_factory=lambda: os.getenv("KOTHA_DEFAULT_SHOP", "demo"))
     timezone: ZoneInfo = field(default_factory=lambda: ZoneInfo(os.getenv("KOTHA_TZ", "Asia/Dhaka")))
 

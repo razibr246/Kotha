@@ -6,7 +6,7 @@ import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -91,6 +91,17 @@ def health() -> dict:
         chunks = conn.execute("SELECT count(*) AS n FROM help_chunks").fetchone()["n"]
     return {"ok": True, "engine": "claude" if settings.anthropic_api_key else "offline",
             "embedder": get_embedder().name, "help_chunks": chunks}
+
+
+@app.get("/api/cron/reseed")
+def reseed(authorization: str | None = Header(default=None)) -> dict:
+    """Refresh the demo shop daily so its orders stay positioned relative to now."""
+    if not settings.cron_secret or authorization != f"Bearer {settings.cron_secret}":
+        raise HTTPException(401, "unauthorized")
+    from .seed import seed_demo
+    init_schema(get_embedder().dim)
+    seed_demo(settings.default_shop)
+    return {"ok": True}
 
 
 @app.get("/")
