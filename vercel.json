@@ -1,3 +1,4 @@
 {
+  "framework": "fastapi",
   "crons": [{ "path": "/api/cron/reseed", "schedule": "5 3 * * *" }]
 }
